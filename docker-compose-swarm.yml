@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  redbot:
+    build: ./red
+    image: harbor01.cssnr.com/shane/red-discord:${VERSION}
+    env_file: ${ENV_FILE}
+    volumes:
+      - data_dir:/data
+    deploy:
+      replicas: 1
+
+volumes:
+  data_dir:
