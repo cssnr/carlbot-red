@@ -1,24 +1,18 @@
-FROM python:3.8-alpine
+FROM ubuntu:focal
 
-RUN apk add --update --no-cache \
-    alpine-sdk \
-    bash \
-    build-base \
-    linux-headers \
-    openjdk11-jre-headless
-
-WORKDIR /red
-COPY . /red
-
-#RUN addgroup -g 1000 -S red && \
-#    adduser -G red -S -u 1000 red && \
-#    chown -R red:red /red && \
-#    mkdir /data && chown -R red:red /data
-#
-#USER red
-
-RUN python -m venv /red/venv && source /red/venv/bin/activate && \
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get -y update && apt-get -y install \
+    build-essential \
+    git \
+    openjdk-11-jdk \
+    python3 \
+    python3-pip \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3 1 && \
+    python -m pip install --no-cache-dir --upgrade pip && \
     python -m pip install --no-cache-dir -U pip setuptools wheel && \
     python -m pip install --no-cache-dir -U Red-DiscordBot[postgres]
+
+WORKDIR /red
+ADD . .
 
 ENTRYPOINT ["bash", "docker-entrypoint.sh"]
