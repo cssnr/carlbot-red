@@ -20,11 +20,6 @@ cat << EOF > ~/.config/Red-DiscordBot/config.json
     }
 }
 EOF
-
-ls -R /data
-
-source /red/venv/bin/activate
-
 redbot "${BOT_NAME}" --edit --no-prompt --token "${BOT_TOKEN}"
 redbot "${BOT_NAME}" --edit --no-prompt --prefix "${BOT_PREFIX}"
 
