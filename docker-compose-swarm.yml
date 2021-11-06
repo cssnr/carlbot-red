@@ -9,6 +9,13 @@ services:
       - data_dir:/data
     deploy:
       replicas: 1
+    networks:
+      - carl-web-network
+
+networks:
+  carl-web-network:
+    name: "${ENV_NAME}_cssnr-carlbot-web_default"
+    external: true
 
 volumes:
   data_dir:

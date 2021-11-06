@@ -48,8 +48,9 @@ pipeline {
                 }
             }
             environment {
-                ENV_FILE = "deploy-configs/services/${SERVICE_NAME}/dev.env"
-                STACK_NAME = "dev_${BASE_NAME}"
+                ENV_NAME = "dev"
+                ENV_FILE = "deploy-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
+                STACK_NAME = "${ENV_NAME}_${BASE_NAME}"
                 DOCKER_PORT = "${DEV_PORT}"
                 NFS_DIRECTORY = "${STACK_NAME}"
             }
@@ -74,8 +75,9 @@ pipeline {
                 }
             }
             environment {
-                ENV_FILE = "deploy-configs/services/${SERVICE_NAME}/prod.env"
-                STACK_NAME = "prod_${BASE_NAME}"
+                ENV_NAME = "prod"
+                ENV_FILE = "deploy-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
+                STACK_NAME = "${ENV_NAME}_${BASE_NAME}"
                 DOCKER_PORT = "${PROD_PORT}"
                 NFS_DIRECTORY = "${STACK_NAME}"
             }
