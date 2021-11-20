@@ -23,4 +23,9 @@ EOF
 redbot "${BOT_NAME}" --edit --no-prompt --token "${BOT_TOKEN}"
 redbot "${BOT_NAME}" --edit --no-prompt --prefix "${BOT_PREFIX}"
 
-redbot "${BOT_NAME}"
+if [ -n "${DEBUG}" ];then
+    echo "Debug set to: ${DEBUG}"
+    redbot --no-prompt --debug --dev "${BOT_NAME}"
+else
+    redbot --no-prompt "${BOT_NAME}"
+fi
