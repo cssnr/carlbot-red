@@ -14,7 +14,7 @@ services:
 
 networks:
   cssnr-carlbot-internal:
-    name: "${ENV_NAME}_cssnr-carlbot-internal"
+    name: "${ENV_NAME}-cssnr-carlbot-internal"
     external: true
 
 volumes:
