@@ -10,10 +10,10 @@ services:
     deploy:
       replicas: 1
     networks:
-      - cssnr-carlbot-internal
+      - dev-cssnr-carlbot-internal
 
 networks:
-  cssnr-carlbot-internal:
+  dev-cssnr-carlbot-internal:
     external: true
 
 volumes:
