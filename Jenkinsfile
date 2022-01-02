@@ -4,16 +4,14 @@
 
 pipeline {
     agent {
-        label 'manager'
+        label 'jenkins-slave-docker'
     }
     options {
         buildDiscarder(logRotator(numToKeepStr:'5'))
         timeout(time: 1, unit: 'HOURS')
     }
     environment {
-        DEV_PORT = '10123'
-        PROD_PORT = '10124'
-        DISCORD_ID = "smashed-alerts"
+        DISCORD_ID = "discord-hook-smashed"
         COMPOSE_FILE = "docker-compose-swarm.yml"
 
         BUILD_CAUSE = getBuildCause()
@@ -24,6 +22,7 @@ pipeline {
         BASE_NAME = "${GIT_ORG}-${GIT_REPO}"
         SERVICE_NAME = "${BASE_NAME}"
         NFS_HOST = "nfs01.cssnr.com"
+        NFS_BASE = "/data/docker"
     }
     stages {
         stage('Init') {
@@ -49,15 +48,13 @@ pipeline {
             }
             environment {
                 ENV_NAME = "dev"
-                ENV_FILE = "deploy-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
+                ENV_FILE = "service-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
                 STACK_NAME = "${ENV_NAME}_${BASE_NAME}"
-                DOCKER_PORT = "${DEV_PORT}"
-                NFS_DIRECTORY = "${STACK_NAME}"
+                NFS_DIRECTORY = "${NFS_BASE}/${STACK_NAME}"
             }
             steps {
                 echo "\n--- Starting Dev Deploy ---\n" +
                         "STACK_NAME:    ${STACK_NAME}\n" +
-                        "DOCKER_PORT:   ${DOCKER_PORT}\n" +
                         "NFS_DIRECTORY: ${NFS_DIRECTORY}\n" +
                         "ENV_FILE:      ${ENV_FILE}\n"
                 sendDiscord("${DISCORD_ID}", "Dev Deploy Started")
@@ -76,15 +73,13 @@ pipeline {
             }
             environment {
                 ENV_NAME = "prod"
-                ENV_FILE = "deploy-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
+                ENV_FILE = "service-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
                 STACK_NAME = "${ENV_NAME}_${BASE_NAME}"
-                DOCKER_PORT = "${PROD_PORT}"
-                NFS_DIRECTORY = "${STACK_NAME}"
+                NFS_DIRECTORY = "${NFS_BASE}/${STACK_NAME}"
             }
             steps {
                 echo "\n--- Starting Prod Deploy ---\n" +
                         "STACK_NAME:    ${STACK_NAME}\n" +
-                        "DOCKER_PORT:   ${DOCKER_PORT}\n" +
                         "NFS_DIRECTORY: ${NFS_DIRECTORY}\n" +
                         "ENV_FILE:      ${ENV_FILE}\n"
                 sendDiscord("${DISCORD_ID}", "Prod Deploy Started")

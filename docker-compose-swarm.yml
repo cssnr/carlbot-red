@@ -10,11 +10,10 @@ services:
     deploy:
       replicas: 1
     networks:
-      - carl-web-network
+      - cssnr-carlbot-internal
 
 networks:
-  carl-web-network:
-    name: "${ENV_NAME}_cssnr-carlbot-web_default"
+  cssnr-carlbot-internal:
     external: true
 
 volumes:
@@ -23,4 +22,4 @@ volumes:
     driver_opts:
       type: nfs
       o: "addr=${NFS_HOST},rw"
-      device: ":/data/docker/${NFS_DIRECTORY}"
+      device: ":${NFS_DIRECTORY}"
