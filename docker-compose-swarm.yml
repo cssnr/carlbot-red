@@ -3,18 +3,18 @@ version: '3.8'
 services:
   redbot:
     build: ./red
-    image: registry.hosted-domains.com/shane/red-discord:${VERSION}
+    image: registry.hosted-domains.com/shane/cssnr-carlbot-red:${VERSION}
     env_file: ${ENV_FILE}
     volumes:
       - data_dir:/data
     deploy:
       replicas: 1
     networks:
-      - carl-web-network
+      - cssnr-carlbot-internal
 
 networks:
-  carl-web-network:
-    name: "${ENV_NAME}_cssnr-carlbot-web_default"
+  cssnr-carlbot-internal:
+    name: "${ENV_NAME}-cssnr-carlbot-internal"
     external: true
 
 volumes:
@@ -23,4 +23,4 @@ volumes:
     driver_opts:
       type: nfs
       o: "addr=${NFS_HOST},rw"
-      device: ":/data/docker/${NFS_DIRECTORY}"
+      device: ":${NFS_DIRECTORY}"
