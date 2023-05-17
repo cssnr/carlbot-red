@@ -25,7 +25,7 @@ redbot "${BOT_NAME}" --edit --no-prompt --prefix "${BOT_PREFIX}"
 
 if [ -n "${DEBUG}" ];then
     echo "Debug set to: ${DEBUG}"
-    redbot --no-prompt --mentionable ---team-members-are-owners --debug --dev "${BOT_NAME}"
+    redbot --no-prompt --mentionable --team-members-are-owners --debug --dev "${BOT_NAME}"
 else
     redbot --no-prompt --mentionable --team-members-are-owners "${BOT_NAME}"
 fi
