@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   redbot:
@@ -10,5 +10,13 @@ services:
     deploy:
       replicas: 1
 
-#volumes:
-#  data_dir:
+  redis:
+    image: redis:6-alpine
+    command: "redis-server --appendonly yes"
+    deploy:
+      replicas: 1
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
