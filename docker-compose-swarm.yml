@@ -38,5 +38,4 @@ networks:
     driver: overlay
     attachable: true
   postgres:
-    name: "postgres"
     external: true
