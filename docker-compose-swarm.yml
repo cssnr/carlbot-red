@@ -2,7 +2,9 @@ version: '3.7'
 
 services:
   redbot:
-    build: ./red
+    build:
+      context: ./red
+      network: host
     image: registry.hosted-domains.com/shane/cssnr-carlbot-red:${VERSION}
     restart: always
     env_file: ${ENV_FILE}
