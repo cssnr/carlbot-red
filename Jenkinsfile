@@ -21,8 +21,6 @@ pipeline {
 
         BASE_NAME = "${GIT_ORG}-${GIT_REPO}"
         SERVICE_NAME = "${BASE_NAME}"
-        NFS_HOST = "nfs01.cssnr.com"
-        NFS_BASE = "/data/docker"
     }
     stages {
         stage('Init') {
@@ -50,15 +48,12 @@ pipeline {
                 ENV_NAME = "dev"
                 ENV_FILE = "service-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
                 STACK_NAME = "${ENV_NAME}_${BASE_NAME}"
-                NFS_DIRECTORY = "${NFS_BASE}/${STACK_NAME}"
             }
             steps {
                 echo "\n--- Starting Dev Deploy ---\n" +
                         "STACK_NAME:    ${STACK_NAME}\n" +
-                        "NFS_DIRECTORY: ${NFS_DIRECTORY}\n" +
                         "ENV_FILE:      ${ENV_FILE}\n"
                 sendDiscord("${DISCORD_ID}", "Dev Deploy Started")
-                setupNfs("${STACK_NAME}")
                 stackPush("${COMPOSE_FILE}")
                 stackDeploy("${COMPOSE_FILE}", "${STACK_NAME}")
                 sendDiscord("${DISCORD_ID}", "Dev Deploy Finished")
@@ -75,15 +70,12 @@ pipeline {
                 ENV_NAME = "prod"
                 ENV_FILE = "service-configs/services/${SERVICE_NAME}/${ENV_NAME}.env"
                 STACK_NAME = "${ENV_NAME}_${BASE_NAME}"
-                NFS_DIRECTORY = "${NFS_BASE}/${STACK_NAME}"
             }
             steps {
                 echo "\n--- Starting Prod Deploy ---\n" +
                         "STACK_NAME:    ${STACK_NAME}\n" +
-                        "NFS_DIRECTORY: ${NFS_DIRECTORY}\n" +
                         "ENV_FILE:      ${ENV_FILE}\n"
                 sendDiscord("${DISCORD_ID}", "Prod Deploy Started")
-                setupNfs("${STACK_NAME}")
                 stackPush("${COMPOSE_FILE}")
                 stackDeploy("${COMPOSE_FILE}", "${STACK_NAME}")
                 sendDiscord("${DISCORD_ID}", "Prod Deploy Finished")
