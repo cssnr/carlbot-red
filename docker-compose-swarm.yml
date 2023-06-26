@@ -1,26 +1,41 @@
-version: '3.8'
+version: '3.7'
 
 services:
   redbot:
-    build: ./red
+    build:
+      context: ./red
+      network: host
     image: registry.hosted-domains.com/shane/cssnr-carlbot-red:${VERSION}
+    restart: always
     env_file: ${ENV_FILE}
     volumes:
-      - data_dir:/data
+      - /data/docker/${STACK_NAME}:/data
     deploy:
       replicas: 1
     networks:
       - cssnr-carlbot-internal
+      - postgres
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6-alpine
+    restart: always
+    command: "redis-server --appendonly yes"
+    deploy:
+      replicas: 1
+    volumes:
+      - redis_data:/data
+    networks:
+      - cssnr-carlbot-internal
+
+volumes:
+  redis_data:
 
 networks:
   cssnr-carlbot-internal:
     name: "${ENV_NAME}-cssnr-carlbot-internal"
+    driver: overlay
+    attachable: true
+  postgres:
     external: true
-
-volumes:
-  data_dir:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: "addr=${NFS_HOST},rw"
-      device: ":${NFS_DIRECTORY}"

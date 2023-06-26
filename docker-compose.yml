@@ -1,14 +1,36 @@
-version: '3.8'
+version: '3.7'
 
 services:
   redbot:
     build: ./red
     image: red-discord:latest
+    restart: always
     env_file: settings.env
     volumes:
       - /data/docker/red:/data
     deploy:
       replicas: 1
+    networks:
+      - redbot-internal
+    depends_on:
+      - redis
 
-#volumes:
-#  data_dir:
+  redis:
+    image: redis:6-alpine
+    restart: always
+    command: "redis-server --appendonly yes"
+    deploy:
+      replicas: 1
+    volumes:
+      - redis_data:/data
+    networks:
+      - redbot-internal
+
+volumes:
+  redis_data:
+
+networks:
+  redbot-internal:
+    name: "redbot-internal"
+    driver: overlay
+    attachable: true
