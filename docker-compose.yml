@@ -2,18 +2,24 @@ version: '3.7'
 
 services:
   redbot:
-    build: ./red
-    image: red-discord:latest
+    build:
+      context: ./red
+      network: host
+    image: shane-cssnr-carlbot-red:latest
     restart: always
     env_file: settings.env
-    volumes:
-      - /data/docker/red:/data
     deploy:
       replicas: 1
-    networks:
-      - redbot-internal
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+    volumes:
+      - /data/docker/red:/data
     depends_on:
       - redis
+    networks:
+      - redbot-internal
 
   redis:
     image: redis:6-alpine
@@ -21,6 +27,10 @@ services:
     command: "redis-server --appendonly yes"
     deploy:
       replicas: 1
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 50M
     volumes:
       - redis_data:/data
     networks:
@@ -30,7 +40,7 @@ volumes:
   redis_data:
 
 networks:
-  redbot-internal:
-    name: "redbot-internal"
+  cssnr-carlbot-internal:
+    name: "${ENV_NAME:-local}-cssnr-carlbot-internal"
     driver: overlay
     attachable: true

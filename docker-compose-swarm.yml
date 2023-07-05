@@ -5,18 +5,22 @@ services:
     build:
       context: ./red
       network: host
-    image: registry.hosted-domains.com/shane/cssnr-carlbot-red:${VERSION}
+    image: ${REGISTRY_HOST}/shane/cssnr-carlbot-red:${VERSION}
     restart: always
     env_file: ${ENV_FILE}
-    volumes:
-      - /data/docker/${STACK_NAME}:/data
     deploy:
       replicas: 1
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+    volumes:
+      - /data/docker/${STACK_NAME}:/data
+    depends_on:
+      - redis
     networks:
       - cssnr-carlbot-internal
       - postgres
-    depends_on:
-      - redis
 
   redis:
     image: redis:6-alpine
@@ -24,6 +28,10 @@ services:
     command: "redis-server --appendonly yes"
     deploy:
       replicas: 1
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 50M
     volumes:
       - redis_data:/data
     networks:
