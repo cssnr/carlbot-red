@@ -32,6 +32,7 @@ pipeline {
                         "GIT_URL:       ${GIT_URL}\n" +
                         "BASE_NAME:     ${BASE_NAME}\n" +
                         "SERVICE_NAME:  ${SERVICE_NAME}\n" +
+                        "CONFIG_NAME:   ${CONFIG_NAME}\n" +
                         "REGISTRY_HOST: ${REGISTRY_HOST}\n" +
                         "BUILD_CAUSE:   ${BUILD_CAUSE}\n" +
                         "GIT_BRANCH:    ${GIT_BRANCH}\n" +
