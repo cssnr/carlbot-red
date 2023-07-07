@@ -16,10 +16,11 @@ services:
           memory: 1G
     volumes:
       - /data/docker/red:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - redis
     networks:
-      - redbot-internal
+      - cssnr-carlbot-internal
 
   redis:
     image: redis:6-alpine
@@ -34,7 +35,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - redbot-internal
+      - cssnr-carlbot-internal
 
 volumes:
   redis_data:
