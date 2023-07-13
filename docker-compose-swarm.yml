@@ -16,6 +16,7 @@ services:
           memory: 1G
     volumes:
       - /data/docker/${STACK_NAME}:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - redis
     networks:
