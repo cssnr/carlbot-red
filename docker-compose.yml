@@ -2,9 +2,7 @@ version: '3.7'
 
 services:
   redbot:
-    build:
-      context: ./red
-      network: host
+    build: ./red
     image: shane-cssnr-carlbot-red:latest
     restart: always
     env_file: settings.env
