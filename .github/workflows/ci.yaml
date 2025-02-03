@@ -58,13 +58,13 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: "Find and Replace"
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "STACK_NAME"
-          replace: ${{ env.STACK_NAME }}
-          include: ${{ env.STACK_FILE}}
-          regex: false
+      #- name: "Find and Replace"
+      #  uses: jacobtomlinson/gha-find-replace@v3
+      #  with:
+      #    find: "STACK_NAME"
+      #    replace: ${{ env.STACK_NAME }}
+      #    include: ${{ env.STACK_FILE}}
+      #    regex: false
 
       - name: "Debug"
         run: |
