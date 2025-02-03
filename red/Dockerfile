@@ -1,5 +1,9 @@
 FROM ubuntu:jammy
 
+LABEL org.opencontainers.image.source="https://github.com/cssnr/carlbot-red"
+LABEL org.opencontainers.image.description="Carl Red Docker"
+LABEL org.opencontainers.image.authors="smashedr"
+
 ENV TZ=America/Los_Angeles
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
