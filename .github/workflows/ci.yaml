@@ -86,6 +86,7 @@ jobs:
         run: |
           echo "VERSION=${{ env.VERSION }}" | tee -a "service-configs/${{ env.CONFIG_FILE }}"
           echo "ENV_NAME=${{ env.ENV_NAME }}" | tee -a "service-configs/${{ env.CONFIG_FILE }}"
+          echo "STACK_NAME=${{ env.STACK_NAME }}" | tee -a "service-configs/${{ env.CONFIG_FILE }}"
 
       - name: "Parse Environment"
         id: parse
