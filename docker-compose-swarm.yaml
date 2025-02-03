@@ -1,21 +1,31 @@
-version: '3.7'
+version: "3.8"
 
 services:
   redbot:
-    build:
-      context: ./red
-      network: host
-    image: ${REGISTRY_HOST}/shane/cssnr-carlbot-red:${VERSION}
+    build: ./red
+    image: ghcr.io/cssnr/carlbot-red:${VERSION:?err}
     restart: always
-    env_file: ${ENV_FILE}
+    environment:
+      BOT_NAME: ${BOT_NAME}
+      BOT_PREFIX: ${BOT_PREFIX}
+      BOT_TOKEN: ${BOT_TOKEN}
+      TZ: ${TZ}
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      PGHOST: ${PGHOST}
+      PGPORT: ${PGPORT}
+      PGUSER: ${PGUSER}
+      PGDATABASE: ${PGDATABASE}
+      PGPASSWORD: ${PGPASSWORD}
+      DEBUG: ${DEBUG}
+      CO_OWNER: ${CO_OWNER}
     deploy:
       replicas: 1
       resources:
         limits:
-          cpus: '3.0'
+          cpus: "3.0"
           memory: 1G
     volumes:
-      - /data/docker/${STACK_NAME}:/data
+      - /data/docker/${STACK_NAME:?err}:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - redis
@@ -31,8 +41,8 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: '2.0'
-          memory: 50M
+          cpus: "2.0"
+          memory: 25M
     volumes:
       - redis_data:/data
     networks:
@@ -43,7 +53,7 @@ volumes:
 
 networks:
   cssnr-carlbot-internal:
-    name: "${ENV_NAME}-cssnr-carlbot-internal"
+    name: "${ENV_NAME:?err}-cssnr-carlbot-internal"
     driver: overlay
     attachable: true
   postgres:

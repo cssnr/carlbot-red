@@ -8,11 +8,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update && apt-get -y install --no-install-recommends \
     build-essential \
     git \
-    libatk1.0-0 \
     libatk-bridge2.0-0 \
+    libatk1.0-0 \
     libatspi2.0-0 \
-    libcairo2 \
     libcairo-gobject2 \
+    libcairo2 \
     libdbus-glib-1-2 \
     libdrm2 \
     libgbm1 \
