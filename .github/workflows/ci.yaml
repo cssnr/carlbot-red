@@ -44,7 +44,7 @@ jobs:
           files: docker-bake.json
           push: true
           set: |
-            red.tags=ghcr.io/cssnr/carlbot-red:${{ env.VERSION }}
+            redbot.tags=ghcr.io/cssnr/carlbot-red:${{ env.VERSION }}
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
 
