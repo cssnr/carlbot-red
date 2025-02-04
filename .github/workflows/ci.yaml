@@ -1,0 +1,118 @@
+name: "CI"
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - master
+
+env:
+  STACK_NAME: dev_cssnr-carlbot-red
+  STACK_FILE: docker-compose-swarm.yaml
+  CONFIG_FILE: services/cssnr/carlbot-red/dev.env
+  VERSION: ${{ github.ref_name }}
+  ENV_NAME: dev # TODO: Consider removing this, used in docker-compose-swarm.yaml
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ !contains(github.event.head_commit.message, '#noci') }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Docker Login"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{  vars.GHCR_USER }}
+          password: ${{ secrets.GHCR_PASS }}
+
+      - name: "Setup Buildx"
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: "Bake and Push"
+        uses: docker/bake-action@v6
+        with:
+          files: docker-bake.json
+          push: true
+          set: |
+            redbot.tags=ghcr.io/cssnr/carlbot-red:${{ env.VERSION }}
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
+
+  deploy:
+    name: "Deploy"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    if: ${{ !contains(github.event.head_commit.message, '#nodep') }}
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      #- name: "Find and Replace"
+      #  uses: jacobtomlinson/gha-find-replace@v3
+      #  with:
+      #    find: "STACK_NAME"
+      #    replace: ${{ env.STACK_NAME }}
+      #    include: ${{ env.STACK_FILE}}
+      #    regex: false
+
+      - name: "Debug"
+        run: |
+          env
+          cat ${{ env.STACK_FILE}}
+
+      - name: "Checkout Service Configs"
+        uses: actions/checkout@v4
+        with:
+          repository: "hosted-domains/service-configs"
+          ssh-key: ${{ secrets.SERVICE_CONFIGS_KEY }}
+          ref: master
+          path: service-configs
+          sparse-checkout: |
+            ${{ env.CONFIG_FILE }}
+          sparse-checkout-cone-mode: false
+
+      - name: "Update Environment"
+        run: |
+          echo "VERSION=${{ env.VERSION }}" | tee -a "service-configs/${{ env.CONFIG_FILE }}"
+          echo "ENV_NAME=${{ env.ENV_NAME }}" | tee -a "service-configs/${{ env.CONFIG_FILE }}"
+          echo "STACK_NAME=${{ env.STACK_NAME }}" | tee -a "service-configs/${{ env.CONFIG_FILE }}"
+
+      - name: "Parse Environment"
+        id: parse
+        uses: cssnr/env-json-action@master
+        with:
+          source: service-configs/${{ env.CONFIG_FILE }}
+
+      - name: "Portainer Deploy"
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          url: ${{ secrets.PORTAINER_URL }}
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          file: ${{ env.STACK_FILE}}
+          name: ${{ env.STACK_NAME}}
+          type: file
+          env_json: "${{ steps.parse.outputs.result }}"
+
+  cleanup:
+    name: "Cleanup"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: deploy
+    if: ${{ !contains(github.event.head_commit.message, '#noclean') }}
+    steps:
+      - name: "Purge Cache"
+        uses: cssnr/cloudflare-purge-cache-action@v1
+        with:
+          token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          domains: cssnr.com
