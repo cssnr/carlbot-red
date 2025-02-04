@@ -4,6 +4,8 @@ services:
   redbot:
     build: ./red
     image: ghcr.io/cssnr/carlbot-red:${VERSION:?err}
+    x-registries:
+      - name: "ghcr.io/cssnr"
     restart: always
     environment:
       BOT_NAME: ${BOT_NAME}
