@@ -90,9 +90,10 @@ jobs:
 
       - name: "Parse Environment"
         id: parse
-        uses: cssnr/env-json-action@master
+        uses: cssnr/env-json-action@v1
         with:
           source: service-configs/${{ env.CONFIG_FILE }}
+          sensitive: true
 
       - name: "Portainer Deploy"
         uses: cssnr/portainer-stack-deploy-action@v1
@@ -112,7 +113,7 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '#noclean') }}
     steps:
       - name: "Purge Cache"
-        uses: cssnr/cloudflare-purge-cache-action@v1
+        uses: cssnr/cloudflare-purge-cache-action@v2
         with:
           token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           domains: cssnr.com
