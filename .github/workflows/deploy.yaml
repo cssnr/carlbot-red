@@ -3,18 +3,15 @@ name: "Deploy"
 on:
   workflow_call:
     inputs: &inputs
-      version:
-        description: "Version Tag"
-        type: string
       dev:
         description: "Development Build"
         type: boolean
         default: true
+      version:
+        description: "Version Tag"
+        type: string
   workflow_dispatch:
     inputs: *inputs
-  #workflow_run:
-  #  workflows: ["Build"]
-  #  types: [completed]
 
 env:
   config_file: services/cssnr/carlbot-red/${{ inputs.dev && 'dev' || 'prod' }}.env
@@ -34,18 +31,29 @@ jobs:
     #  url: https://badges.cssnr.com/
 
     steps:
+      - name: "Debug event.json"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: cat "${GITHUB_EVENT_PATH}"
       - name: "Debug CTX github"
         if: ${{ !github.event.act }}
         continue-on-error: true
         env:
           GITHUB_CTX: ${{ toJSON(github) }}
         run: echo "$GITHUB_CTX"
+      - name: "Debug Environment"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: env
 
       - name: "Debug 1"
         continue-on-error: true
+        env:
+          version: ${{ env.version == 'master' && 'latest' || env.version }}
         run: |
           echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
           echo "github.ref_name: ${{ github.ref_name }}"
+          echo "github.event.release.tag_name: ${{ github.event.release.tag_name }}"
 
           echo "----------------------------------------"
 
@@ -57,13 +65,6 @@ jobs:
           echo "env.stack-name: ${{ env.stack-name }}"
           echo "env.version: ${{ env.version }}"
 
-          echo "ENV_NAME: ${{ inputs.dev && 'dev' || 'prod' }}"
-
-      - name: "Debug 2"
-        continue-on-error: true
-        env:
-          version: ${{ env.version == 'master' && 'latest' || env.version }}
-        run: |
           echo "VERSION: ${{ env.version }}"
           echo "ENV_NAME: ${{ inputs.dev && 'dev' || 'prod' }}"
           echo "STACK_NAME: ${{ env.stack-name }}"
@@ -94,13 +95,13 @@ jobs:
           source: service-configs/${{ env.config_file }}
           sensitive: true
 
-      #- name: "Portainer Deploy"
-      #  uses: cssnr/portainer-stack-deploy-action@v1
-      #  with:
-      #    url: ${{ secrets.PORTAINER_URL }}
-      #    token: ${{ secrets.PORTAINER_TOKEN }}
-      #    file: ${{ env.stack-file }}
-      #    name: ${{ env.stack-name }}
-      #    username: ${{ vars.GHCR_USER }}
-      #    password: ${{ secrets.GHCR_PASS }}
-      #    env_json: "${{ steps.parse.outputs.result }}"
+      - name: "Portainer Deploy"
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          url: ${{ secrets.PORTAINER_URL }}
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          file: ${{ env.stack-file }}
+          name: ${{ env.stack-name }}
+          username: ${{ vars.GHCR_USER }}
+          password: ${{ secrets.GHCR_PASS }}
+          env_json: "${{ steps.parse.outputs.result }}"
