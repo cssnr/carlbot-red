@@ -1,0 +1,96 @@
+name: "Deploy"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version Tag"
+        required: false
+      dev:
+        description: "Development Build"
+        type: boolean
+        default: true
+  #workflow_run:
+  #  workflows: ["Build"]
+  #  types: [completed]
+
+env:
+  config_file: services/cssnr/carlbot-red/${{ inputs.dev && 'dev' && 'prod' }}.env
+  stack-file: docker-compose-swarm.yaml
+  stack-name: ${{ github.repository_owner }}-${{ github.event.repository.name }}
+  version: ${{ inputs.version || github.event.workflow_run.head_branch || github.ref_name }}
+
+jobs:
+  deploy:
+    #if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    name: "Deploy"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    #environment:
+    #  name: swarm
+    #  url: https://badges.cssnr.com/
+
+    steps:
+      - name: "Debug CTX github"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        env:
+          GITHUB_CTX: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CTX"
+
+      - name: "Debug 1"
+        continue-on-error: true
+        run: |
+          echo "inputs.version: ${{ inputs.version }}"
+          echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "env.version: ${{ env.version }}"
+
+      - name: "Checkout Service Configs"
+        uses: actions/checkout@v6
+        with:
+          repository: "hosted-domains/service-configs"
+          ssh-key: ${{ secrets.SERVICE_CONFIGS_KEY }}
+          ref: master
+          path: service-configs
+          sparse-checkout: |
+            ${{ env.config_file }}
+          sparse-checkout-cone-mode: false
+
+      - name: "Update Environment"
+        env:
+          version: ${{ env.version == 'master' && 'latest' || env.version }}
+        run: |
+          echo "VERSION=${{ env.version }}" | tee -a "service-configs/${{ env.config_file }}"
+          echo "ENV_NAME=${{ inputs.dev && 'dev' && 'prod' }}" | tee -a "service-configs/${{ env.config_file }}"
+          echo "STACK_NAME=${{ env.stack-name }}" | tee -a "service-configs/${{ env.config_file }}"
+
+      - name: "Parse Environment"
+        id: parse
+        uses: cssnr/env-json-action@v1
+        with:
+          source: service-configs/${{ env.config_file }}
+          sensitive: true
+
+      - name: "Debug 2"
+        continue-on-error: true
+        env:
+          version: ${{ env.version == 'master' && 'latest' || env.version }}
+        run: |
+          echo "env.version:${{ env.version }}"
+          echo "env.stack-file:${{ env.stack-file }}"
+          echo "env.stack-name:${{ env.stack-name }}"
+          echo "env.stack-name:${{ env.stack-name }}"
+
+      - name: "Portainer Deploy"
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          url: ${{ secrets.PORTAINER_URL }}
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          file: ${{ env.stack-file }}
+          name: ${{ env.stack-name }}
+          username: ${{ vars.GHCR_USER }}
+          password: ${{ secrets.GHCR_PASS }}
+          env_json: "${{ steps.parse.outputs.result }}"

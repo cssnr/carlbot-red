@@ -1,0 +1,27 @@
+name: "CI"
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  build:
+    name: "Build"
+    uses: ./.github/workflows/build.yaml
+    secrets: inherit
+    permissions:
+      contents: write
+      packages: write
+    with:
+      dev: true
+
+  deploy:
+    name: "Deploy"
+    uses: ./.github/workflows/deploy.yaml
+    needs: build
+    secrets: inherit
+    with:
+      dev: true
+      version: "ci"
