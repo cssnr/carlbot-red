@@ -2,7 +2,7 @@ name: "Deploy"
 
 on:
   workflow_call:
-    inputs:
+    inputs: &inputs
       version:
         description: "Version Tag"
         type: string
@@ -11,14 +11,7 @@ on:
         type: boolean
         default: true
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version Tag"
-        type: string
-      dev:
-        description: "Development Build"
-        type: boolean
-        default: true
+    inputs: *inputs
   #workflow_run:
   #  workflows: ["Build"]
   #  types: [completed]
@@ -51,12 +44,29 @@ jobs:
       - name: "Debug 1"
         continue-on-error: true
         run: |
-          echo "inputs.version: ${{ inputs.version }}"
           echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
           echo "github.ref_name: ${{ github.ref_name }}"
-          echo "env.version: ${{ env.version }}"
+
+          echo "----------------------------------------"
+
+          echo "inputs.version: ${{ inputs.version }}"
           echo "inputs.dev: ${{ inputs.dev }}"
+
+          echo "env.config_file: ${{ env.config_file }}"
+          echo "env.stack-file: ${{ env.stack-file }}"
+          echo "env.stack-name: ${{ env.stack-name }}"
+          echo "env.version: ${{ env.version }}"
+
           echo "ENV_NAME: ${{ inputs.dev && 'dev' && 'prod' }}"
+
+      - name: "Debug 2"
+        continue-on-error: true
+        env:
+          version: ${{ env.version == 'master' && 'latest' || env.version }}
+        run: |
+          echo "VERSION: ${{ env.version }}"
+          echo "ENV_NAME: ${{ inputs.dev && 'dev' && 'prod' }}"
+          echo "STACK_NAME: ${{ env.stack-name }}
 
       - name: "Checkout Service Configs"
         uses: actions/checkout@v6
@@ -69,7 +79,7 @@ jobs:
             ${{ env.config_file }}
           sparse-checkout-cone-mode: false
 
-      - name: "Update Environment"
+      - name: "Update Service Configs"
         env:
           version: ${{ env.version == 'master' && 'latest' || env.version }}
         run: |
@@ -77,22 +87,12 @@ jobs:
           echo "ENV_NAME=${{ inputs.dev && 'dev' && 'prod' }}" | tee -a "service-configs/${{ env.config_file }}"
           echo "STACK_NAME=${{ env.stack-name }}" | tee -a "service-configs/${{ env.config_file }}"
 
-      - name: "Parse Environment"
+      - name: "Parse Service Configs"
         id: parse
         uses: cssnr/env-json-action@v1
         with:
           source: service-configs/${{ env.config_file }}
           sensitive: true
-
-      - name: "Debug 2"
-        continue-on-error: true
-        env:
-          version: ${{ env.version == 'master' && 'latest' || env.version }}
-        run: |
-          echo "env.version:${{ env.version }}"
-          echo "env.stack-file:${{ env.stack-file }}"
-          echo "env.stack-name:${{ env.stack-name }}"
-          echo "env.stack-name:${{ env.stack-name }}"
 
       #- name: "Portainer Deploy"
       #  uses: cssnr/portainer-stack-deploy-action@v1
