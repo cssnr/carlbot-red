@@ -63,21 +63,20 @@ jobs:
       #  with:
       #    platforms: linux/amd64,linux/arm64
 
-      - name: "Update Version Tags"
-        if: ${{ !env.dev }}
-        id: version
-        uses: cssnr/update-version-tags-action@v2
-        with:
-          prefix: ""
-          tags: |
-            ${{ inputs.tags }}
+      #- name: "Update Version Tags"
+      #  if: ${{ !env.dev }}
+      #  id: version
+      #  uses: cssnr/update-version-tags-action@v2
+      #  with:
+      #    prefix: ""
+      #    tags: |
+      #      ${{ inputs.tags }}
 
       - name: "Debug Version Tags"
         continue-on-error: true
         run: |
-          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "tags1: ${{ github.ref_name || github.event.release.tag_name }}"
           echo "tags1: ${{ env.dev && 'dev' || '' }}"
-          echo "tags2: ${{ steps.version.outputs.tags }}"
           echo "tags3: ${{ inputs.tags }}"
 
       - name: "Generate Docker Tags"
@@ -86,8 +85,8 @@ jobs:
         with:
           images: "ghcr.io/${{ github.repository }}"
           tags: |
+            ${{ github.ref_name || github.event.release.tag_name }}
             ${{ env.dev && 'dev' || '' }}
-            ${{ steps.version.outputs.tags }}
             ${{ inputs.tags }}
 
       - name: "Debug Docker Tags"
