@@ -92,13 +92,13 @@ jobs:
           echo "env.stack-name:${{ env.stack-name }}"
           echo "env.stack-name:${{ env.stack-name }}"
 
-      - name: "Portainer Deploy"
-        uses: cssnr/portainer-stack-deploy-action@v1
-        with:
-          url: ${{ secrets.PORTAINER_URL }}
-          token: ${{ secrets.PORTAINER_TOKEN }}
-          file: ${{ env.stack-file }}
-          name: ${{ env.stack-name }}
-          username: ${{ vars.GHCR_USER }}
-          password: ${{ secrets.GHCR_PASS }}
-          env_json: "${{ steps.parse.outputs.result }}"
+      #- name: "Portainer Deploy"
+      #  uses: cssnr/portainer-stack-deploy-action@v1
+      #  with:
+      #    url: ${{ secrets.PORTAINER_URL }}
+      #    token: ${{ secrets.PORTAINER_TOKEN }}
+      #    file: ${{ env.stack-file }}
+      #    name: ${{ env.stack-name }}
+      #    username: ${{ vars.GHCR_USER }}
+      #    password: ${{ secrets.GHCR_PASS }}
+      #    env_json: "${{ steps.parse.outputs.result }}"
