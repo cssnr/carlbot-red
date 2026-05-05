@@ -17,7 +17,7 @@ on:
   #  types: [completed]
 
 env:
-  config_file: services/cssnr/carlbot-red/${{ inputs.dev && 'dev' && 'prod' }}.env
+  config_file: services/cssnr/carlbot-red/${{ inputs.dev && 'dev' || 'prod' }}.env
   stack-file: docker-compose-swarm.yaml
   stack-name: ${{ github.repository_owner }}-${{ github.event.repository.name }}
   version: ${{ inputs.version || github.event.workflow_run.head_branch || github.ref_name }}
@@ -57,7 +57,7 @@ jobs:
           echo "env.stack-name: ${{ env.stack-name }}"
           echo "env.version: ${{ env.version }}"
 
-          echo "ENV_NAME: ${{ inputs.dev && 'dev' && 'prod' }}"
+          echo "ENV_NAME: ${{ inputs.dev && 'dev' || 'prod' }}"
 
       - name: "Debug 2"
         continue-on-error: true
@@ -65,7 +65,7 @@ jobs:
           version: ${{ env.version == 'master' && 'latest' || env.version }}
         run: |
           echo "VERSION: ${{ env.version }}"
-          echo "ENV_NAME: ${{ inputs.dev && 'dev' && 'prod' }}"
+          echo "ENV_NAME: ${{ inputs.dev == 'true' && 'dev' || 'prod' }}"
           echo "STACK_NAME: ${{ env.stack-name }}
 
       - name: "Checkout Service Configs"
@@ -84,7 +84,7 @@ jobs:
           version: ${{ env.version == 'master' && 'latest' || env.version }}
         run: |
           echo "VERSION=${{ env.version }}" | tee -a "service-configs/${{ env.config_file }}"
-          echo "ENV_NAME=${{ inputs.dev && 'dev' && 'prod' }}" | tee -a "service-configs/${{ env.config_file }}"
+          echo "ENV_NAME=${{ inputs.dev && 'dev' || 'prod' }}" | tee -a "service-configs/${{ env.config_file }}"
           echo "STACK_NAME=${{ env.stack-name }}" | tee -a "service-configs/${{ env.config_file }}"
 
       - name: "Parse Service Configs"
