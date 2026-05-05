@@ -55,6 +55,8 @@ jobs:
           echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
           echo "github.ref_name: ${{ github.ref_name }}"
           echo "env.version: ${{ env.version }}"
+          echo "inputs.dev: ${{ inputs.dev }}"
+          echo "ENV_NAME: ${{ inputs.dev && 'dev' && 'prod' }}"
 
       - name: "Checkout Service Configs"
         uses: actions/checkout@v6
