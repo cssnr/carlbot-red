@@ -11,6 +11,7 @@ on:
     inputs:
       tags:
         description: "Extra Tags: comma,separated"
+        type: string
       dev: *dev
   #release:
   #  types: [published]

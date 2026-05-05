@@ -2,11 +2,19 @@ name: "Deploy"
 
 on:
   workflow_call:
+    inputs:
+      version:
+        description: "Version Tag"
+        type: string
+      dev:
+        description: "Development Build"
+        type: boolean
+        default: true
   workflow_dispatch:
     inputs:
       version:
         description: "Version Tag"
-        required: false
+        type: string
       dev:
         description: "Development Build"
         type: boolean
