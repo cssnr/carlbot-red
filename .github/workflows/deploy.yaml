@@ -105,3 +105,4 @@ jobs:
           username: ${{ vars.GHCR_USER }}
           password: ${{ secrets.GHCR_PASS }}
           env_json: "${{ steps.parse.outputs.result }}"
+          type: file
