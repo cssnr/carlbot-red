@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 LABEL org.opencontainers.image.source="https://github.com/cssnr/carlbot-red"
 LABEL org.opencontainers.image.description="Carl Red Docker"
@@ -8,8 +8,9 @@ ENV TZ=America/Los_Angeles
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH="/venv/bin:${PATH}"
 
-RUN apt-get -y update && apt-get -y install --no-install-recommends \
+RUN apt-get update && apt-get -y install --no-install-recommends \
     build-essential \
     git \
     libatk-bridge2.0-0 \
@@ -36,14 +37,19 @@ RUN apt-get -y update && apt-get -y install --no-install-recommends \
     libxrandr2 \
     libxtst6 \
     libzbar0 \
-    openjdk-11-jre-headless \
-    python3-dev \
-    python3-pip \
-    python3-venv \
-    && python3 -m pip install --no-cache-dir -U pip &&\
-    python3 -m pip install --no-cache-dir -U setuptools wheel &&\
-    python3 -m pip install --no-cache-dir -U Red-DiscordBot[postgres] &&\
-    apt-get -y clean && rm -rf /var/lib/apt/lists/*
+    openjdk-17-jre-headless \
+    software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get -y install --no-install-recommends \
+        python3.11 \
+        python3.11-dev \
+        python3.11-venv \
+    && python3.11 -m venv /venv \
+    && /venv/bin/pip install --no-cache-dir -U pip setuptools wheel \
+    && /venv/bin/pip install --no-cache-dir -U "Red-DiscordBot[postgres]" \
+    && /venv/bin/pip install --no-cache-dir -U typing_extensions \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /red
 COPY . .

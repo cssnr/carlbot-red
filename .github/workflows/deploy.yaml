@@ -31,9 +31,8 @@ jobs:
     #  url: https://badges.cssnr.com/
 
     steps:
-      # TODO: Not sure why portainer-stack-deploy uses type: file
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: "Debug event.json"
         if: ${{ !github.event.act }}
@@ -74,7 +73,7 @@ jobs:
           echo "STACK_NAME: ${{ env.stack-name }}"
 
       - name: "Checkout Service Configs"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: "hosted-domains/service-configs"
           ssh-key: ${{ secrets.SERVICE_CONFIGS_KEY }}
@@ -100,7 +99,7 @@ jobs:
           sensitive: true
 
       - name: "Portainer Deploy"
-        uses: cssnr/portainer-stack-deploy-action@v1
+        uses: cssnr/portainer-stack-deploy-action@v2
         with:
           url: ${{ secrets.PORTAINER_URL }}
           token: ${{ secrets.PORTAINER_TOKEN }}
