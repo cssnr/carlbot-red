@@ -16,6 +16,7 @@ services:
       PGUSER: ${PGUSER}
       PGDATABASE: ${PGDATABASE}
       PGPASSWORD: ${PGPASSWORD}
+      PGSSLMODE: require
       DEBUG: ${DEBUG}
       CO_OWNER: ${CO_OWNER}
     deploy:
