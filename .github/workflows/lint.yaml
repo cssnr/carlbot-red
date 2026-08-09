@@ -1,0 +1,120 @@
+name: "Lint"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths-ignore:
+      - ".gitattributes"
+      - ".gitignore"
+      - "**/requirements*"
+      - "*.env*"
+      - ".prettierignore"
+      - ".github/disabled/**"
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: "Lint"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v7
+
+      - name: "Debug event.json"
+        continue-on-error: true
+        run: cat "${GITHUB_EVENT_PATH}"
+      - name: "Debug CTX github"
+        continue-on-error: true
+        env:
+          GITHUB_CTX: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CTX"
+      - name: "Debug Environment"
+        continue-on-error: true
+        run: env
+
+      - name: "Setup Python 3.11"
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      #- name: "Install"
+      #  id: install
+      #  run: |
+      #    python -m pip install -U pip
+      #    python -m pip install --group dev
+      #    #python -m pip install -r app/requirements.txt
+      #    python -m pip list
+
+      - name: "Debug"
+        continue-on-error: true
+        run: |
+          set +e
+          echo "group: ${{ github.workflow }}-${{ github.ref }}"
+
+          echo "github.workflow: ${{ github.workflow }}"
+          echo "github.ref: ${{ github.ref }}"
+          echo "pull_request.number: ${{ github.event.pull_request.number }}"
+
+          which python
+          python -V
+
+          echo "::group::pip freeze"
+          python -m pip freeze
+          echo "::endgroup::"
+
+          echo "::group::pip outdated"
+          python -m pip list --outdated
+          echo "::endgroup::"
+
+          echo "::group::pip list"
+          python -m pip list
+          echo "::endgroup::"
+
+      - name: "prettier"
+        if: ${{ !cancelled() }}
+        run: |
+          echo "::group::Install"
+          npm install prettier
+          echo "::endgroup::"
+          npx prettier --check .
+
+      - name: "yamllint"
+        if: ${{ !cancelled() }}
+        run: |
+          echo "::group::List Files"
+          yamllint -c .github/yamllint.yaml --list-files .
+          echo "::endgroup::"
+          yamllint -c .github/yamllint.yaml .
+
+      - name: "actionlint"
+        if: ${{ !cancelled() }}
+        uses: cssnr/actionlint-action@master
+        with:
+          shellcheck_opts: -e SC2010 -e SC2155 -e SC2012
+
+      - name: "shellcheck"
+        if: ${{ !cancelled() }}
+        uses: ludeeus/action-shellcheck@master
+        env:
+          SHELLCHECK_OPTS: -x
+        with:
+          scandir: red
+
+      - name: "hadolint"
+        if: ${{ !cancelled() }}
+        uses: hadolint/hadolint-action@v3.4.0
+        with:
+          dockerfile: red/Dockerfile
+          # TODO: DL3008 - pin versions
+          ignore: "DL3013,DL3018,DL3008"

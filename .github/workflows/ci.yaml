@@ -1,0 +1,38 @@
+name: "CI"
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment to Deploy"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  build:
+    name: "Build"
+    uses: ./.github/workflows/build.yaml
+    if: ${{ !contains(github.event.head_commit.message, '#noci') }}
+    secrets: inherit
+    permissions:
+      contents: write
+      packages: write
+    with:
+      dev: ${{ inputs.env == 'dev' || !inputs.env }}
+      tags: ${{ inputs.env == 'prod' && 'latest' || '' }}
+
+  deploy:
+    name: "Deploy"
+    uses: ./.github/workflows/deploy.yaml
+    needs: build
+    secrets: inherit
+    with:
+      dev: ${{ inputs.env == 'dev' || !inputs.env }}
+      version: ${{ inputs.env == 'prod' && 'latest' || '' }}
