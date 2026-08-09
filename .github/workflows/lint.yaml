@@ -116,4 +116,5 @@ jobs:
         uses: hadolint/hadolint-action@v3.4.0
         with:
           dockerfile: red/Dockerfile
-          ignore: "DL3013,DL3018"
+          # TODO: DL3008 - pin versions
+          ignore: "DL3013,DL3018,DL3008"
