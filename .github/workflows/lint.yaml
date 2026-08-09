@@ -47,7 +47,6 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-          cache: "pip"
 
       #- name: "Install"
       #  id: install
@@ -116,5 +115,5 @@ jobs:
         if: ${{ !cancelled() }}
         uses: hadolint/hadolint-action@v3.4.0
         with:
-          dockerfile: app/Dockerfile
+          dockerfile: red/dockerfile
           ignore: "DL3013,DL3018"
