@@ -115,5 +115,5 @@ jobs:
         if: ${{ !cancelled() }}
         uses: hadolint/hadolint-action@v3.4.0
         with:
-          dockerfile: red/dockerfile
+          dockerfile: red/Dockerfile
           ignore: "DL3013,DL3018"
