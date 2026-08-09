@@ -14,3 +14,7 @@
 # Carl Bot Red Docker
 
 Docker image for Carl Red...
+
+## Notes
+
+- The `STORAGE_TYPE` variable is not used.

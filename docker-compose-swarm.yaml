@@ -57,5 +57,5 @@ networks:
     name: "${ENV_NAME:?err}-cssnr-carlbot-internal"
     driver: overlay
     attachable: true
-  postgres:
-    external: true
+  #postgres:
+  #  external: true
